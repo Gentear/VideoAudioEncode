@@ -5,7 +5,7 @@
 ## 使用方式
 
 
-### 硬编码
+### 视频硬编码
 
 ```
 1. 
@@ -58,7 +58,7 @@ self.encode.frameInterval = 2.0;
 
 ```
 
-### 硬解码
+### 视频硬解码
 
 
 ```
@@ -94,3 +94,19 @@ NSMutableData *h264Data = [[NSMutableData alloc] init];
 }
 ```
 
+### 音频硬解码
+
+
+```
+1. 导入头文件
+#import "AACEncode.h"
+
+2. AVCaptureVideoDataOutputSampleBufferDelegate回调方法中进行编码
+ [self.audioEncode encodeSampleBuffer:sampleBuffer];
+ 
+ 3.代理方法中获取data数据
+ - (void)AACCallBackData:(NSData *)audioData{
+    NSLog(@"%@",audioData);
+    [self.audiofileHanle writeData:audioData];
+}
+```
