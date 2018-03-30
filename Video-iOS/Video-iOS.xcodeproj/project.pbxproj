@@ -10,6 +10,7 @@
 		F358AA332068F54A0027C876 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F358AA322068F54A0027C876 /* libz.tbd */; };
 		F358AA352068F5520027C876 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F358AA342068F5520027C876 /* libbz2.tbd */; };
 		F358AA3C2068FA230027C876 /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F358AA3B2068FA230027C876 /* libstdc++.tbd */; };
+		F366D6AE206CD1C200388A25 /* AACEncode.m in Sources */ = {isa = PBXBuildFile; fileRef = F366D6AD206CD1C200388A25 /* AACEncode.m */; };
 		F3BD4DF6206A493400FD63E3 /* AAPLEAGLLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = F3BD4DF3206A493400FD63E3 /* AAPLEAGLLayer.m */; };
 		F3BD4DF7206A493400FD63E3 /* H264HWEncode.m in Sources */ = {isa = PBXBuildFile; fileRef = F3BD4DF5206A493400FD63E3 /* H264HWEncode.m */; };
 		F3BD4DFA206A4E0C00FD63E3 /* H264HWDecode.m in Sources */ = {isa = PBXBuildFile; fileRef = F3BD4DF9206A4E0C00FD63E3 /* H264HWDecode.m */; };
@@ -29,6 +30,8 @@
 		F358AA342068F5520027C876 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		F358AA372068F5820027C876 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F358AA3B2068FA230027C876 /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
+		F366D6AC206CD1C200388A25 /* AACEncode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AACEncode.h; sourceTree = "<group>"; };
+		F366D6AD206CD1C200388A25 /* AACEncode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AACEncode.m; sourceTree = "<group>"; };
 		F3BD4DF2206A493400FD63E3 /* AAPLEAGLLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLEAGLLayer.h; sourceTree = "<group>"; };
 		F3BD4DF3206A493400FD63E3 /* AAPLEAGLLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLEAGLLayer.m; sourceTree = "<group>"; };
 		F3BD4DF4206A493400FD63E3 /* H264HWEncode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = H264HWEncode.h; sourceTree = "<group>"; };
@@ -84,6 +87,8 @@
 				F3BD4DF5206A493400FD63E3 /* H264HWEncode.m */,
 				F3BD4DF8206A4E0C00FD63E3 /* H264HWDecode.h */,
 				F3BD4DF9206A4E0C00FD63E3 /* H264HWDecode.m */,
+				F366D6AC206CD1C200388A25 /* AACEncode.h */,
+				F366D6AD206CD1C200388A25 /* AACEncode.m */,
 			);
 			path = VideoAudioEncode;
 			sourceTree = "<group>";
@@ -194,6 +199,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F3BD4DF6206A493400FD63E3 /* AAPLEAGLLayer.m in Sources */,
+				F366D6AE206CD1C200388A25 /* AACEncode.m in Sources */,
 				F3BD4DFA206A4E0C00FD63E3 /* H264HWDecode.m in Sources */,
 				F3C638E82060FF2C00BC79C9 /* ViewController.m in Sources */,
 				F3BD4DF7206A493400FD63E3 /* H264HWEncode.m in Sources */,

@@ -11,7 +11,6 @@
 @interface H264HWEncode()
 {
     int frameID;
-    dispatch_queue_t mCaptureQueue;
     dispatch_queue_t mEncodeQueue;
     VTCompressionSessionRef EncodeSession;
     CMFormatDescriptionRef format;
@@ -22,6 +21,7 @@
 
 - (instancetype)init{
     if (self = [super init]) {
+        mEncodeQueue =  dispatch_get_global_queue(0, 0);
         [self initVideoToolBox];
         self.frameInterval = 10;
         self.fps = 10;
@@ -68,15 +68,18 @@
     });
 }
 - (void)initVideoToolBox{
-    mCaptureQueue = dispatch_get_global_queue(0, 0);
-    mEncodeQueue = dispatch_get_global_queue(0, 0);
+    if (EncodeSession) {
+        return;
+    }
     dispatch_sync(mEncodeQueue, ^{
         frameID = 0;
         int width = 480 , height = 640;
         OSStatus status = VTCompressionSessionCreate(NULL, width, height, kCMVideoCodecType_H264 , NULL, NULL, NULL, didCompressH264,(__bridge void *)(self), &EncodeSession);
-        NSLog(@"create status : %d",(int)status);
-        //成功
-        if (status != 0) {
+        
+        NSLog(@"H264: VTCompressionSessionCreate %d", (int)status);
+         //成功
+        if (status != 0)
+        {
             NSLog(@"H264: Unable to create a H264 session");
             return ;
         }
@@ -94,7 +97,10 @@
         //帧时间  如果不设置会导致时间轴过长
         CMTime presenetationTimeStamp = CMTimeMake(frameID ++, 1000);
         VTEncodeInfoFlags flags;
+        [self initVideoToolBox];
         OSStatus stasusCode = VTCompressionSessionEncodeFrame(EncodeSession, imageBuffer, presenetationTimeStamp, kCMTimeInvalid, NULL, NULL, &flags);
+        
+        NSAssert(stasusCode == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:stasusCode userInfo:nil].localizedDescription);
         
         if (stasusCode != noErr) {
             NSLog(@"H264: VTCompressionSessionEncodeFrame faild  with %d", (int)stasusCode);
@@ -113,6 +119,7 @@
 void didCompressH264(void *  outputCallbackRefCon, void *  sourceFrameRefCon,OSStatus status,VTEncodeInfoFlags infoFlags, CMSampleBufferRef sampleBuffer){
     
     NSLog(@"didCompressH264 called with status %d infoFlags %d",(int)status , (int)infoFlags);
+
     if (status != 0) {
         return;
     }
@@ -200,5 +207,8 @@ void didCompressH264(void *  outputCallbackRefCon, void *  sourceFrameRefCon,OSS
     VTCompressionSessionInvalidate(EncodeSession);
     CFRelease(EncodeSession);
     EncodeSession = NULL;
+}
+- (void)dealloc{
+    [self endVideoToolBox];
 }
 @end

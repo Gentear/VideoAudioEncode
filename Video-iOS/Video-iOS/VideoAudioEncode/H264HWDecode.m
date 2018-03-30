@@ -30,21 +30,21 @@ const uint8_t lyStartCode[4] = {0, 0, 0, 1};
 }
 - (void)decodeNalu:(NSData *)frameData{
     dispatch_sync(mDecodeQueue, ^{
-
-    uint8_t * frameBuffer = (uint8_t *)[frameData bytes];
-    uint32_t frameSize = (uint32_t)frameData.length;
-    
-    if(frameBuffer == NULL || frameSize == 0) {
-        return ;
-    }
-    uint32_t nalSize = (uint32_t)(frameSize - 4);
-    uint32_t *pNalSize = (uint32_t *)frameBuffer;
-    *pNalSize = CFSwapInt32HostToBig(nalSize);
-    
-    // 在buffer的前面填入代表长度的int
-    CVPixelBufferRef pixelBuffer = NULL;
-    int nalType = frameBuffer[4] & 0x1F;
-    
+        
+        uint8_t * frameBuffer = (uint8_t *)[frameData bytes];
+        uint32_t frameSize = (uint32_t)frameData.length;
+        
+        if(frameBuffer == NULL || frameSize == 0) {
+            return ;
+        }
+        uint32_t nalSize = (uint32_t)(frameSize - 4);
+        uint32_t *pNalSize = (uint32_t *)frameBuffer;
+        *pNalSize = CFSwapInt32HostToBig(nalSize);
+        
+        // 在buffer的前面填入代表长度的int
+        CVPixelBufferRef pixelBuffer = NULL;
+        int nalType = frameBuffer[4] & 0x1F;
+        
         switch (nalType) {
             case 0x05:
                 NSLog(@"NAL type is IDR frame");
@@ -92,6 +92,10 @@ const uint8_t lyStartCode[4] = {0, 0, 0, 1};
                 //调用didDecompress 返回后回调
                 OSStatus decodeStatus = VTDecompressionSessionDecodeFrame(sessionRef, sampleBuffer, flags, &outputPixelBuffer, &flagOut);
                 
+                /**
+                 * B/P帧可能会丢失  此处状态报错为-12911
+                 */
+                
                 if (decodeStatus == kVTInvalidSessionErr) {
                     NSLog(@"IOS8VT: Invalid session, reset decoder session");
                 }else if(decodeStatus == kVTVideoDecoderBadDataErr){
@@ -116,26 +120,30 @@ const uint8_t lyStartCode[4] = {0, 0, 0, 1};
         const size_t parameterSetSizes[2] = {mSPSSize,mPPSSize};
         OSStatus status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, 2, parameterSetPointers, parameterSetSizes, 4, &formatDescriptionOut);
         
-        if (status == noErr) {
-            CFDictionaryRef attrs = NULL;
-            
-            const void *key[] = {kCVPixelBufferPixelFormatTypeKey};
-            uint32_t v = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
-            const void *values[] = {CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type , &v)};
-            attrs = CFDictionaryCreate(kCFAllocatorDefault, key , values, 1, NULL, NULL);
-            
-            //回调
-            VTDecompressionOutputCallbackRecord callBackRecord;
-            callBackRecord.decompressionOutputCallback = didDecompress;
-            callBackRecord.decompressionOutputRefCon = (__bridge void *)self;
-            //创建解码器
-            status = VTDecompressionSessionCreate(kCFAllocatorDefault, formatDescriptionOut , NULL, attrs, &callBackRecord, &sessionRef);
-            VTSessionSetProperty(sessionRef, kVTDecompressionPropertyKey_ThreadCount, (__bridge CFTypeRef)[NSNumber numberWithInt:1]);
-            VTSessionSetProperty(sessionRef, kVTDecompressionPropertyKey_RealTime, kCFBooleanTrue);
-            CFRelease(attrs);
-        }else{
-            NSLog(@"IOS8VT: reset decoder session failed status=%d", (int)status);
-        }
+        NSAssert(status == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil].localizedDescription);
+        
+        //        if (status == noErr) {
+        CFDictionaryRef attrs = NULL;
+        
+        const void *key[] = {kCVPixelBufferPixelFormatTypeKey};
+        uint32_t v = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
+        const void *values[] = {CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type , &v)};
+        attrs = CFDictionaryCreate(kCFAllocatorDefault, key , values, 1, NULL, NULL);
+        
+        //回调
+        VTDecompressionOutputCallbackRecord callBackRecord;
+        callBackRecord.decompressionOutputCallback = didDecompress;
+        callBackRecord.decompressionOutputRefCon = (__bridge void *)self;
+        //创建解码器
+        status = VTDecompressionSessionCreate(kCFAllocatorDefault, formatDescriptionOut , NULL, attrs, &callBackRecord, &sessionRef);
+        NSAssert(status == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil].localizedDescription);
+        
+        VTSessionSetProperty(sessionRef, kVTDecompressionPropertyKey_ThreadCount, (__bridge CFTypeRef)[NSNumber numberWithInt:1]);
+        VTSessionSetProperty(sessionRef, kVTDecompressionPropertyKey_RealTime, kCFBooleanTrue);
+        CFRelease(attrs);
+        //        }else{
+        //            NSLog(@"IOS8VT: reset decoder session failed status=%d", (int)status);
+        //        }
     }
 }
 
@@ -151,6 +159,9 @@ void didDecompress(void *  decompressionOutputRefCon,void *  sourceFrameRefCon, 
         [deEncode.delegate displayDecodedFrame:imageBuffer];
     }
     CVPixelBufferRelease(imageBuffer);
+}
+- (void)dealloc{
+    [self endVideoToolBox];
 }
 - (void)endVideoToolBox{
     if(sessionRef) {

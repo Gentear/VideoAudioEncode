@@ -7,7 +7,8 @@
 //
 
 #import "AppDelegate.h"
-//#import "DeEncodeViewController.h"
+//#import "AACViewController.h"
+
 @interface AppDelegate ()
 
 @end
@@ -19,9 +20,9 @@
     // Override point for customization after application launch.
     
 //    self.window = [[UIWindow alloc]initWithFrame:UIScreen.mainScreen.bounds];
-//    
-//    self.window.rootViewController = [DeEncodeViewController new];
-//    
+//
+//    self.window.rootViewController = [AACViewController new];
+//
 //    [self.window makeKeyWindow];
     
     return YES;

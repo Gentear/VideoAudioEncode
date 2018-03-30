@@ -9,12 +9,13 @@
 #import "ViewController.h"
 #import "H264HWEncode.h"
 #import "H264HWDecode.h"
+#import "AACEncode.h"
 #import "AAPLEAGLLayer.h"
 #import <AVFoundation/AVFoundation.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-@interface ViewController ()<AVCaptureVideoDataOutputSampleBufferDelegate,H264HWEncodeDelegate,H264HWDeEncodeDelegate>
+@interface ViewController ()<AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudioDataOutputSampleBufferDelegate,H264HWEncodeDelegate,H264HWDeEncodeDelegate,AACEncodeDelegate>
 /**session*/
 @property (nonatomic, strong) AVCaptureSession *mCaptureSession;
 /**device input*/
@@ -24,31 +25,38 @@
 /**预览图*/
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *mPreviewlayer;
 /**硬编码*/
-@property (nonatomic, strong) H264HWEncode *encode;
+@property (nonatomic, strong) H264HWEncode *videoEncode;
 /**硬解码*/
-@property (nonatomic, strong) H264HWDecode *deEncode;
+@property (nonatomic, strong) H264HWDecode *videoDeEncode;
+/**音频编码*/
+@property (nonatomic, strong) AACEncode *audioEncode;
+
 @property (nonatomic , strong) AAPLEAGLLayer *playLayer;
+/**<#desc#>*/
+@property (nonatomic, strong) NSFileHandle *fileHanle;
+@property (nonatomic, strong) NSFileHandle *audiofileHanle; ;
 @end
 
 @implementation ViewController{
     dispatch_queue_t mCaptureQueue;
-    NSFileHandle *fileHanle;
+ 
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
     
     // Do any additional setup after loading the view, typically from a nib.
-    UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(0, 10, 100, 44)];
+    UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 64)];
     [button setTitle:@"play" forState:UIControlStateNormal];
     [button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-    [self.view addSubview:button];
     [button addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self playLayer];
+    [self.view addSubview:button];
+
 }
 - (void)onClick:(UIButton *)btn{
     if (!self.mCaptureSession||!self.mCaptureSession.running) {
         [btn setTitle:@"stop" forState:UIControlStateNormal];
+        [self playLayer];
+        [self.view bringSubviewToFront:btn];
         [self startCapture];
     }else{
         [btn setTitle:@"play" forState:UIControlStateNormal];
@@ -60,7 +68,7 @@
     self.mCaptureSession = [[AVCaptureSession alloc]init];
     self.mCaptureSession.sessionPreset = AVCaptureSessionPreset640x480;
 
-    mCaptureQueue = dispatch_get_global_queue(0, 0);
+    mCaptureQueue =  dispatch_get_global_queue(0, 0);
 
     AVCaptureDevice *inputCamera = nil;
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
@@ -86,19 +94,33 @@
         [self.mCaptureSession addOutput:self.mCaptureDeviceOutput];
     }
 
+    NSArray *audioDevices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
+    AVCaptureDevice *audioDevice = audioDevices.lastObject;
+
+    NSError * error;
+
+    AVCaptureDeviceInput * deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+
+    AVCaptureAudioDataOutput *audioOutput = [[AVCaptureAudioDataOutput alloc]init];
+
+    if ([self.mCaptureSession canAddInput:deviceInput]) {
+        [self.mCaptureSession addInput:deviceInput];
+    }
+    if ([self.mCaptureSession canAddOutput:audioOutput]) {
+        [self.mCaptureSession addOutput:audioOutput];
+    }
+    dispatch_queue_t outQueue = dispatch_queue_create("Audio Output Queue", DISPATCH_QUEUE_SERIAL);
+    
+    [audioOutput setSampleBufferDelegate:self queue:outQueue];
+    
+    
     AVCaptureConnection * connection = [self.mCaptureDeviceOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
+    [self videoEncode];
 
-    NSString *file = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"adc.h264"];
-    [[NSFileManager defaultManager]removeItemAtPath:file error:nil];
-    [[NSFileManager defaultManager]createFileAtPath:file contents:nil attributes:nil];
-    fileHanle = [NSFileHandle fileHandleForWritingAtPath:file];
+    [self fileHanle];
     
-    self.encode = [[H264HWEncode alloc]init];
-    
-    self.encode.delegate = self;
-    
-    self.encode.frameInterval = 2.0;
+    [self audiofileHanle];
     
     [self.mCaptureSession startRunning];
 
@@ -106,11 +128,12 @@
 ////停止捕获
 - (void)stopCapture{
     [self.mCaptureSession stopRunning];
-    [self.mPreviewlayer removeFromSuperlayer];
-    [self.encode endVideoToolBox];
-    [self.deEncode endVideoToolBox];
-    [fileHanle closeFile];
-    fileHanle = NULL;
+    [self.playLayer removeFromSuperlayer];
+    [self.fileHanle closeFile];
+    [self.audiofileHanle closeFile];
+    _playLayer = nil;
+    _fileHanle = nil;
+    _audiofileHanle = nil;
 }
 #pragma mark - H264HWEncodeDelegate
 - (void)getSpsPps:(NSData *)sps pps:(NSData *)pps byteHeader:(NSData *)byteHeader{
@@ -120,46 +143,90 @@
     [h264Data appendData:byteHeader];
     [h264Data appendData:sps];
     //写入数据
-    [fileHanle writeData:h264Data];
-    [self.deEncode decodeNalu:h264Data];
+    [self.fileHanle writeData:h264Data];
+    [self.videoDeEncode decodeNalu:h264Data];
     
     h264Data = [[NSMutableData alloc] init];
     [h264Data appendData:byteHeader];
     [h264Data appendData:pps];
-    [fileHanle writeData:h264Data];
-    [self.deEncode decodeNalu:h264Data];
+    [self.fileHanle writeData:h264Data];
+    [self.videoDeEncode decodeNalu:h264Data];
 
 }
 - (void)gotEncodedData:(NSData *)data byteHeader:(NSData *)byteHeader isKeyFrame:(BOOL)isKeyFrame{
     NSMutableData *h264Data = [[NSMutableData alloc] init];
     [h264Data appendData:byteHeader];
     [h264Data appendData:data];
-    [fileHanle writeData:h264Data];
-    [self.deEncode decodeNalu:h264Data];
+    [self.fileHanle writeData:h264Data];
+    [self.videoDeEncode decodeNalu:h264Data];
 }
 #pragma mark - H264HWDeEncodeDelegate
 - (void)displayDecodedFrame:(CVImageBufferRef )imageBuffer{
     self.playLayer.pixelBuffer = imageBuffer;
 }
+#pragma mark - AACEncodeDelegate
+- (void)AACCallBackData:(NSData *)audioData{
+    NSLog(@"%@",audioData);
+    [self.audiofileHanle writeData:audioData];
+}
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
 - (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
-    [self.encode encode:sampleBuffer];
+    if (output == self.mCaptureDeviceOutput) {
+        [self.videoEncode encode:sampleBuffer];
+    }else{
+        [self.audioEncode encodeSampleBuffer:sampleBuffer];
+    }
 }
 #pragma mark - 懒加载
-- (H264HWDecode *)deEncode {
-    if (!_deEncode) {
+- (H264HWEncode *)videoEncode{
+    if (!_videoEncode) {
+        _videoEncode = [[H264HWEncode alloc]init];
         
-        _deEncode = [[H264HWDecode alloc]init];
-        self.deEncode.delegate = self;
+        _videoEncode.delegate = self;
+        
+        _videoEncode.frameInterval = 2.0;
     }
-    return _deEncode;
+    return _videoEncode;
+}
+- (H264HWDecode *)videoDeEncode {
+    if (!_videoDeEncode) {
+        
+        _videoDeEncode = [[H264HWDecode alloc]init];
+        _videoDeEncode.delegate = self;
+    }
+    return _videoDeEncode;
 }
 - (AAPLEAGLLayer *)playLayer{
     if (!_playLayer) {
-        _playLayer = [[AAPLEAGLLayer alloc] initWithFrame:CGRectMake(0, 50, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height)];
-        _playLayer.backgroundColor = [UIColor blackColor].CGColor;
+        _playLayer = [[AAPLEAGLLayer alloc] initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height)];
+        _playLayer.backgroundColor = [UIColor clearColor].CGColor;
         [self.view.layer addSublayer:_playLayer];
     }
     return _playLayer;
+}
+- (AACEncode *)audioEncode{
+    if (!_audioEncode) {
+        _audioEncode = [[AACEncode alloc]init];
+        _audioEncode.delegate = self;
+    }
+    return _audioEncode;
+}
+- (NSFileHandle *)fileHanle{
+    if (!_fileHanle) {
+        NSString *file = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"adc.h264"];
+        [[NSFileManager defaultManager]removeItemAtPath:file error:nil];
+        [[NSFileManager defaultManager]createFileAtPath:file contents:nil attributes:nil];
+        _fileHanle = [NSFileHandle fileHandleForWritingAtPath:file];
+    }
+    return _fileHanle;
+}
+- (NSFileHandle *)audiofileHanle{
+    if (!_audiofileHanle) {
+        NSString *file = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"aaa.aac"];
+        [[NSFileManager defaultManager]removeItemAtPath:file error:nil];
+        [[NSFileManager defaultManager]createFileAtPath:file contents:nil attributes:nil];
+        _audiofileHanle = [NSFileHandle fileHandleForWritingAtPath:file];
+    }
+    return _audiofileHanle;
 }
 @end

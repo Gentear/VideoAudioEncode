@@ -19,6 +19,6 @@
 @property (nonatomic, weak) id<H264HWDeEncodeDelegate> delegate;
 /**参考viewController中的方式传参*/
 - (void)decodeNalu:(NSData *)frameData;
-//结束编码
+/**结束硬编码 内部自动销毁*/
 - (void)endVideoToolBox;
 @end

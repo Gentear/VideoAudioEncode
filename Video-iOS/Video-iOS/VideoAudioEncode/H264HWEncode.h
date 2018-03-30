@@ -41,7 +41,8 @@
 @property (nonatomic, assign) int bitRate;
 /**设置码率 ， 上限  单位是bps*/
 @property (nonatomic, assign) int bitRateLimit;
-//- (void)initVideoToolBox;
+/**传入视频流*/
 - (void)encode:(CMSampleBufferRef)sampleBuffer;
+/**结束硬编码 内部自动销毁*/
 - (void)endVideoToolBox;
 @end
