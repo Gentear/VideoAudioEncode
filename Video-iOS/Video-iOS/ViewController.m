@@ -10,10 +10,9 @@
 #import "H264HWEncode.h"
 #import "H264HWDecode.h"
 #import "AACEncode.h"
+#import "AACDecode.h"
 #import "AAPLEAGLLayer.h"
 #import <AVFoundation/AVFoundation.h>
-#import <VideoToolbox/VideoToolbox.h>
-#import <AudioToolbox/AudioToolbox.h>
 
 @interface ViewController ()<AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudioDataOutputSampleBufferDelegate,H264HWEncodeDelegate,H264HWDeEncodeDelegate,AACEncodeDelegate>
 /**session*/
@@ -30,7 +29,8 @@
 @property (nonatomic, strong) H264HWDecode *videoDeEncode;
 /**音频编码*/
 @property (nonatomic, strong) AACEncode *audioEncode;
-
+/**音频解码*/
+@property (nonatomic, strong) AACDecode *audioDecode;
 @property (nonatomic , strong) AAPLEAGLLayer *playLayer;
 /**<#desc#>*/
 @property (nonatomic, strong) NSFileHandle *fileHanle;
@@ -43,6 +43,8 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+   
     
     // Do any additional setup after loading the view, typically from a nib.
     UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 64)];
@@ -168,6 +170,7 @@
 - (void)AACCallBackData:(NSData *)audioData{
     NSLog(@"%@",audioData);
     [self.audiofileHanle writeData:audioData];
+//    [self.audioDecode encodeAudio:audioData];
 }
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
 - (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
@@ -210,6 +213,13 @@
         _audioEncode.delegate = self;
     }
     return _audioEncode;
+}
+- (AACDecode *)audioDecode{
+    if (!_audioDecode) {
+        AACDecode *decode = [[AACDecode alloc]init];
+        _audioDecode = decode;
+    }
+    return _audioDecode;
 }
 - (NSFileHandle *)fileHanle{
     if (!_fileHanle) {

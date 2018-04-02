@@ -100,7 +100,7 @@
         [self initVideoToolBox];
         OSStatus stasusCode = VTCompressionSessionEncodeFrame(EncodeSession, imageBuffer, presenetationTimeStamp, kCMTimeInvalid, NULL, NULL, &flags);
         
-        NSAssert(stasusCode == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:stasusCode userInfo:nil].localizedDescription);
+//        NSAssert(stasusCode == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:stasusCode userInfo:nil].localizedDescription);
         
         if (stasusCode != noErr) {
             NSLog(@"H264: VTCompressionSessionEncodeFrame faild  with %d", (int)stasusCode);
