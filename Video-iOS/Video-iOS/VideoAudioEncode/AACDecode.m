@@ -11,7 +11,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIKit.h>
 
-@interface AACDecode()//<NSURLSessionDelegate>
+@interface AACDecode()
 {
     AudioFileStreamID audioFileStream;
     NSInteger readPacketIndex;

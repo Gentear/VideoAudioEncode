@@ -16,14 +16,18 @@
 @implementation AACEncode
 {
     dispatch_queue_t encodeQueue;
+    dispatch_queue_t cellBackQueue;
     char *pcmBuffer;
     size_t pcmBufferSize;
+    /**pcm转aac buffer 容器*/
     uint8_t *aacBuffer;
     NSUInteger aacBufferSize;
 }
 - (instancetype)init{
     if (self = [super init]) {
-        encodeQueue = dispatch_get_global_queue(0, 0);
+        encodeQueue = dispatch_queue_create("AAC Encoder Queue", DISPATCH_QUEUE_SERIAL);
+        cellBackQueue = dispatch_queue_create("AAC CallBack Queue", DISPATCH_QUEUE_SERIAL);
+
         _audioConverter = NULL;
         pcmBufferSize = 0;
         pcmBuffer = NULL;
@@ -34,46 +38,69 @@
     return self;
 }
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
-    dispatch_sync(encodeQueue, ^{
-        
-        CFRetain(sampleBuffer);
+    //这样就需要手动进行内存管理
+    CFRetain(sampleBuffer);
+    
+    dispatch_async(encodeQueue, ^{
         if (!_audioConverter) {
+            //配置编码参数
             [self initAudioEncoderFromSampleBuffer:sampleBuffer];
         }
+        //获取samplebuffer数据
         CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
         CFRetain(blockBuffer);
+        
+        //pcm
         OSStatus status = CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &pcmBufferSize , &pcmBuffer);
         NSError *error = nil;
         if (status != kCMBlockBufferNoErr) {
             error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+            return ;
         }
-        NSAssert(status == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil].localizedDescription);
+        //AAC清空
         memset(aacBuffer, 0, aacBufferSize);
         
+        //初始化缓存列表
         AudioBufferList outAudioBufferList = {0};
+        //缓冲区个数
         outAudioBufferList.mNumberBuffers = 1;
+        //数据通道
         outAudioBufferList.mBuffers[0].mNumberChannels = 1;
+        //缓冲数据大小
         outAudioBufferList.mBuffers[0].mDataByteSize = (int)aacBufferSize;
+        //缓冲区内容
         outAudioBufferList.mBuffers[0].mData = aacBuffer;
         
+        //编码到缓存列表
         AudioStreamPacketDescription *outPacketDescription = NULL;
         UInt32  ioOutputDataPacketSize = 1;
-        
         status = AudioConverterFillComplexBuffer(_audioConverter, inInputDataProc, (__bridge void *)self, &ioOutputDataPacketSize, &outAudioBufferList, outPacketDescription);
-        NSAssert(status == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil].localizedDescription);
         
-        NSData *rawAAC = [NSData dataWithBytes:outAudioBufferList.mBuffers[0].mData length:outAudioBufferList.mBuffers[0].mDataByteSize];
-        NSData *adtsHeader = [self adtsDataForPacketLength:rawAAC.length];
-        NSMutableData *fullData = [NSMutableData dataWithData:adtsHeader];
-        [fullData appendData:rawAAC];
-        if ([self.delegate respondsToSelector:@selector(AACCallBackData:)]) {
-            [self.delegate AACCallBackData:fullData];
+        
+        if (status == noErr) {
+            //编码成功的AAC数据
+            NSData *rawAAC = [NSData dataWithBytes:outAudioBufferList.mBuffers[0].mData length:outAudioBufferList.mBuffers[0].mDataByteSize];
+            //获取头文件
+            NSData *adtsHeader = [self adtsDataForPacketLength:rawAAC.length];
+            //整个data数据
+            NSMutableData *fullData = [NSMutableData dataWithData:adtsHeader];
+            [fullData appendData:rawAAC];
+            dispatch_async(cellBackQueue, ^{
+                if ([self.delegate respondsToSelector:@selector(AACCallBackData:)]) {
+                    [self.delegate AACCallBackData:fullData];
+                }
+            });
+            CFRelease(sampleBuffer);
+            CFRelease(blockBuffer);
+        }else{
+            CFRelease(sampleBuffer);
+            CFRelease(blockBuffer);
+            return;
         }
-        CFRelease(sampleBuffer);
-        CFRelease(blockBuffer);
     });
 }
 - (void)initAudioEncoderFromSampleBuffer:(CMSampleBufferRef)smapleBuffer{
+    //获取原音频格式设置
     AudioStreamBasicDescription inAudioStreamBasicDecription = *CMAudioFormatDescriptionGetStreamBasicDescription((CMAudioFormatDescriptionRef)CMSampleBufferGetFormatDescription(smapleBuffer));
     //初始化输出流的结构体描述为0
     AudioStreamBasicDescription outAudioStreamBasicDescription = {0};
@@ -94,7 +121,7 @@
     outAudioStreamBasicDescription.mBitsPerChannel = 0;
     //8字节对齐
     outAudioStreamBasicDescription.mReserved = 0;
-    //软编
+    //软编 获取编码区
     AudioClassDescription *description = [self getAudioClassDescriptionWithType:kAudioFormatMPEG4AAC fromManuFacturer:kAppleSoftwareAudioCodecManufacturer];
     //创建音频转换器
     OSStatus status = AudioConverterNewSpecific(&inAudioStreamBasicDecription, &outAudioStreamBasicDescription, 1, description, &_audioConverter);
@@ -132,6 +159,7 @@
     
 }
 
+/**模认添加头文件*/
 - (NSData *)adtsDataForPacketLength:(NSUInteger)packetLength{
     int adtsLength = 7;
     char * packet = malloc(sizeof(char) * adtsLength);
@@ -155,9 +183,11 @@
 }
 
 OSStatus inInputDataProc(AudioConverterRef inAudioConverter,UInt32 *ioNumberDataPackets,AudioBufferList *ioData,AudioStreamPacketDescription ** outDataPacketDescription,void * inUserData){
-    
+    //获取编码区
     AACEncode * encode = (__bridge AACEncode *)inUserData;
+    //请求数据长度
     UInt32 requestedPackets = *ioNumberDataPackets;
+    //pcm数据填充到缓冲区
     size_t copiedSamples = [encode copyPCMSamplesIntoBuffer:ioData];
     if (copiedSamples < requestedPackets) {
         //PCM 缓冲区还没满
@@ -172,13 +202,16 @@ OSStatus inInputDataProc(AudioConverterRef inAudioConverter,UInt32 *ioNumberData
  *  填充PCM到缓冲区
  */
 - (size_t)copyPCMSamplesIntoBuffer:(AudioBufferList *)ioData{
-    
+    //获取pcm
     size_t originalBufferSize = pcmBufferSize;
+    //没有数据返回
     if (!originalBufferSize) {
         return 0;
     }
+    //aac缓存区填充pcm数据
     ioData->mBuffers[0].mData = pcmBuffer;
     ioData->mBuffers[0].mDataByteSize = (int)pcmBufferSize;
+    //清空pcm
     pcmBuffer = NULL;
     pcmBufferSize = 0;
     return originalBufferSize;

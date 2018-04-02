@@ -175,9 +175,13 @@
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
 - (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
     if (output == self.mCaptureDeviceOutput) {
-        [self.videoEncode encode:sampleBuffer];
+        dispatch_sync(mCaptureQueue, ^{
+            [self.videoEncode encode:sampleBuffer];
+        });
     }else{
-        [self.audioEncode encodeSampleBuffer:sampleBuffer];
+        dispatch_sync(mCaptureQueue, ^{
+            [self.audioEncode encodeSampleBuffer:sampleBuffer];
+        });
     }
 }
 #pragma mark - 懒加载
