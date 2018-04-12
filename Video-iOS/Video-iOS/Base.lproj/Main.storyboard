@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fXr-wF-aLx">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -20,11 +20,51 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dt9-hs-of0">
+                                <rect key="frame" x="166" y="130" width="43" height="30"/>
+                                <state key="normal" title="server"/>
+                                <connections>
+                                    <action selector="pushServer:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3G3-Mm-IpJ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KGy-RV-4Gg">
+                                <rect key="frame" x="168" y="241" width="38" height="30"/>
+                                <state key="normal" title="client"/>
+                                <connections>
+                                    <action selector="pushClient:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nGz-3q-Tdd"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="KGy-RV-4Gg" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="RiZ-Kj-PS3"/>
+                            <constraint firstItem="KGy-RV-4Gg" firstAttribute="top" secondItem="Dt9-hs-of0" secondAttribute="bottom" constant="81" id="euX-eu-c33"/>
+                            <constraint firstItem="Dt9-hs-of0" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="pTb-AS-FLk"/>
+                            <constraint firstItem="Dt9-hs-of0" firstAttribute="top" secondItem="7PF-3m-fKd" secondAttribute="bottom" constant="66" id="uBc-Os-AXC"/>
+                        </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="SyS-6V-cKa"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="322" y="-347"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Khe-N8-Kgk">
+            <objects>
+                <navigationController id="fXr-wF-aLx" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Lgv-kg-veI">
+                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="3b9-CM-eMQ"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="xrr-jj-NHN" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-564" y="-312"/>
         </scene>
     </scenes>
 </document>

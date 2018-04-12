@@ -9,7 +9,7 @@
  */
 
 #import "AAPLEAGLLayer.h"
-
+#import "EncodeHeader.h"
 #import <AVFoundation/AVUtilities.h>
 #import <mach/mach_time.h>
 #include <AVFoundation/AVFoundation.h>

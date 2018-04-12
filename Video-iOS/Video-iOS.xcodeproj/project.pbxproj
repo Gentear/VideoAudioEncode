@@ -7,9 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		22A3D2CB07A3C59D15F79478 /* Pods_Video_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8473FE110B5E3C3E1CD1D42 /* Pods_Video_iOS.framework */; };
 		F358AA332068F54A0027C876 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F358AA322068F54A0027C876 /* libz.tbd */; };
 		F358AA352068F5520027C876 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F358AA342068F5520027C876 /* libbz2.tbd */; };
 		F358AA3C2068FA230027C876 /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F358AA3B2068FA230027C876 /* libstdc++.tbd */; };
+		F361369C207B77570051110C /* ServerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F361369A207B77570051110C /* ServerViewController.m */; };
+		F361369D207B77570051110C /* ServerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F361369B207B77570051110C /* ServerViewController.xib */; };
+		F36136A1207B77640051110C /* ClientViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F361369F207B77640051110C /* ClientViewController.m */; };
+		F36136A2207B77640051110C /* ClientViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F36136A0207B77640051110C /* ClientViewController.xib */; };
 		F366D6AE206CD1C200388A25 /* AACEncode.m in Sources */ = {isa = PBXBuildFile; fileRef = F366D6AD206CD1C200388A25 /* AACEncode.m */; };
 		F3815941206E06B900C2DA00 /* AACDecode.m in Sources */ = {isa = PBXBuildFile; fileRef = F3815940206E06B900C2DA00 /* AACDecode.m */; };
 		F3BD4DF6206A493400FD63E3 /* AAPLEAGLLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = F3BD4DF3206A493400FD63E3 /* AAPLEAGLLayer.m */; };
@@ -24,6 +29,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		415C6523B6C0D88E6FA4CEE7 /* Pods-Video-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Video-iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Video-iOS/Pods-Video-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		C8473FE110B5E3C3E1CD1D42 /* Pods_Video_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Video_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9D22F42198D3EA3AC753AF2 /* Pods-Video-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Video-iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Video-iOS/Pods-Video-iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		F345CA2E207E023200B857A8 /* TCPSocketDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPSocketDefine.h; sourceTree = "<group>"; };
 		F358AA2D2068F51C0027C876 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		F358AA2E2068F5270027C876 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		F358AA302068F5350027C876 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
@@ -31,6 +40,12 @@
 		F358AA342068F5520027C876 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		F358AA372068F5820027C876 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F358AA3B2068FA230027C876 /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
+		F3613699207B77570051110C /* ServerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServerViewController.h; sourceTree = "<group>"; };
+		F361369A207B77570051110C /* ServerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ServerViewController.m; sourceTree = "<group>"; };
+		F361369B207B77570051110C /* ServerViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ServerViewController.xib; sourceTree = "<group>"; };
+		F361369E207B77640051110C /* ClientViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ClientViewController.h; sourceTree = "<group>"; };
+		F361369F207B77640051110C /* ClientViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ClientViewController.m; sourceTree = "<group>"; };
+		F36136A0207B77640051110C /* ClientViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ClientViewController.xib; sourceTree = "<group>"; };
 		F366D6AC206CD1C200388A25 /* AACEncode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AACEncode.h; sourceTree = "<group>"; };
 		F366D6AD206CD1C200388A25 /* AACEncode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AACEncode.m; sourceTree = "<group>"; };
 		F381593F206E06B900C2DA00 /* AACDecode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AACDecode.h; sourceTree = "<group>"; };
@@ -51,6 +66,7 @@
 		F3C638EF2060FF2C00BC79C9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F3C638F12060FF2C00BC79C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F3C638F22060FF2C00BC79C9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F3FD6325207F4FF6004211A6 /* EncodeHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EncodeHeader.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,12 +77,22 @@
 				F358AA3C2068FA230027C876 /* libstdc++.tbd in Frameworks */,
 				F358AA352068F5520027C876 /* libbz2.tbd in Frameworks */,
 				F358AA332068F54A0027C876 /* libz.tbd in Frameworks */,
+				22A3D2CB07A3C59D15F79478 /* Pods_Video_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7C20A48A4B7ABE9BC4BBC2C9 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C9D22F42198D3EA3AC753AF2 /* Pods-Video-iOS.debug.xcconfig */,
+				415C6523B6C0D88E6FA4CEE7 /* Pods-Video-iOS.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		F358AA2C2068F51C0027C876 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -77,6 +103,7 @@
 				F358AA302068F5350027C876 /* MediaPlayer.framework */,
 				F358AA2E2068F5270027C876 /* MobileCoreServices.framework */,
 				F358AA2D2068F51C0027C876 /* VideoToolbox.framework */,
+				C8473FE110B5E3C3E1CD1D42 /* Pods_Video_iOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -94,6 +121,7 @@
 				F366D6AD206CD1C200388A25 /* AACEncode.m */,
 				F381593F206E06B900C2DA00 /* AACDecode.h */,
 				F3815940206E06B900C2DA00 /* AACDecode.m */,
+				F3FD6325207F4FF6004211A6 /* EncodeHeader.h */,
 			);
 			path = VideoAudioEncode;
 			sourceTree = "<group>";
@@ -104,6 +132,7 @@
 				F3C638E22060FF2C00BC79C9 /* Video-iOS */,
 				F3C638E12060FF2C00BC79C9 /* Products */,
 				F358AA2C2068F51C0027C876 /* Frameworks */,
+				7C20A48A4B7ABE9BC4BBC2C9 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -119,10 +148,17 @@
 			isa = PBXGroup;
 			children = (
 				F3BD4DF1206A493400FD63E3 /* VideoAudioEncode */,
+				F345CA2E207E023200B857A8 /* TCPSocketDefine.h */,
 				F3C638E32060FF2C00BC79C9 /* AppDelegate.h */,
 				F3C638E42060FF2C00BC79C9 /* AppDelegate.m */,
 				F3C638E62060FF2C00BC79C9 /* ViewController.h */,
 				F3C638E72060FF2C00BC79C9 /* ViewController.m */,
+				F3613699207B77570051110C /* ServerViewController.h */,
+				F361369A207B77570051110C /* ServerViewController.m */,
+				F361369B207B77570051110C /* ServerViewController.xib */,
+				F361369E207B77640051110C /* ClientViewController.h */,
+				F361369F207B77640051110C /* ClientViewController.m */,
+				F36136A0207B77640051110C /* ClientViewController.xib */,
 				F3C638E92060FF2C00BC79C9 /* Main.storyboard */,
 				F3C638EC2060FF2C00BC79C9 /* Assets.xcassets */,
 				F3C638EE2060FF2C00BC79C9 /* LaunchScreen.storyboard */,
@@ -139,9 +175,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F3C638F62060FF2C00BC79C9 /* Build configuration list for PBXNativeTarget "Video-iOS" */;
 			buildPhases = (
+				62F72ADF074A5B1A7A1927E6 /* [CP] Check Pods Manifest.lock */,
 				F3C638DC2060FF2C00BC79C9 /* Sources */,
 				F3C638DD2060FF2C00BC79C9 /* Frameworks */,
 				F3C638DE2060FF2C00BC79C9 /* Resources */,
+				18530AB242151232C128732F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -190,13 +228,56 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F36136A2207B77640051110C /* ClientViewController.xib in Resources */,
 				F3C638F02060FF2C00BC79C9 /* LaunchScreen.storyboard in Resources */,
 				F3C638ED2060FF2C00BC79C9 /* Assets.xcassets in Resources */,
 				F3C638EB2060FF2C00BC79C9 /* Main.storyboard in Resources */,
+				F361369D207B77570051110C /* ServerViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		18530AB242151232C128732F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Video-iOS/Pods-Video-iOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/CocoaAsyncSocket/CocoaAsyncSocket.framework",
+				"${BUILT_PRODUCTS_DIR}/SocketRocket/SocketRocket.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaAsyncSocket.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SocketRocket.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Video-iOS/Pods-Video-iOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		62F72ADF074A5B1A7A1927E6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Video-iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F3C638DC2060FF2C00BC79C9 /* Sources */ = {
@@ -206,11 +287,13 @@
 				F3BD4DF6206A493400FD63E3 /* AAPLEAGLLayer.m in Sources */,
 				F366D6AE206CD1C200388A25 /* AACEncode.m in Sources */,
 				F3BD4DFA206A4E0C00FD63E3 /* H264HWDecode.m in Sources */,
+				F361369C207B77570051110C /* ServerViewController.m in Sources */,
 				F3C638E82060FF2C00BC79C9 /* ViewController.m in Sources */,
 				F3BD4DF7206A493400FD63E3 /* H264HWEncode.m in Sources */,
 				F3C638F32060FF2C00BC79C9 /* main.m in Sources */,
 				F3C638E52060FF2C00BC79C9 /* AppDelegate.m in Sources */,
 				F3815941206E06B900C2DA00 /* AACDecode.m in Sources */,
+				F36136A1207B77640051110C /* ClientViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -342,6 +425,7 @@
 		};
 		F3C638F72060FF2C00BC79C9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C9D22F42198D3EA3AC753AF2 /* Pods-Video-iOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -361,6 +445,7 @@
 		};
 		F3C638F82060FF2C00BC79C9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 415C6523B6C0D88E6FA4CEE7 /* Pods-Video-iOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;

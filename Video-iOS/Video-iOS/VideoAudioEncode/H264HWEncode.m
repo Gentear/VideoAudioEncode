@@ -7,7 +7,7 @@
 //
 
 #import "H264HWEncode.h"
-
+#import "EncodeHeader.h"
 @interface H264HWEncode()
 {
     int frameID;
@@ -15,10 +15,11 @@
     VTCompressionSessionRef EncodeSession;
     CMFormatDescriptionRef format;
 }
+/**<#desc#>*/
+//@property (nonatomic, strong) NSOperationQueue *<#name#>;
 @end
 
 @implementation H264HWEncode
-
 - (instancetype)init{
     if (self = [super init]) {
         mEncodeQueue =  dispatch_get_global_queue(0, 0);
@@ -38,6 +39,7 @@
         CFNumberRef frameIntervalRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &frameInterval);
         VTSessionSetProperty(EncodeSession, kVTCompressionPropertyKey_MaxKeyFrameInterval, frameIntervalRef);
         VTCompressionSessionPrepareToEncodeFrames(EncodeSession);
+        CFRelease(frameIntervalRef);
     });
 }
 - (void)setFps:(int)fps{
@@ -47,6 +49,7 @@
         CFNumberRef fpsRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &fps);
         VTSessionSetProperty(EncodeSession, kVTCompressionPropertyKey_ExpectedFrameRate, fpsRef);
         VTCompressionSessionPrepareToEncodeFrames(EncodeSession);
+        CFRelease(fpsRef);
     });
 }
 - (void)setBitRate:(int)bitRate{
@@ -56,6 +59,7 @@
         CFNumberRef bitRateRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &bitRate);
         VTSessionSetProperty(EncodeSession, kVTCompressionPropertyKey_AverageBitRate, bitRateRef);
         VTCompressionSessionPrepareToEncodeFrames(EncodeSession);
+        CFRelease(bitRateRef);
     });
 }
 - (void)setBitRateLimit:(int)bitRateLimit{
@@ -65,6 +69,7 @@
         CFNumberRef bitRateLimitRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &bitRateLimit);
         VTSessionSetProperty(EncodeSession, kVTCompressionPropertyKey_DataRateLimits, bitRateLimitRef);
         VTCompressionSessionPrepareToEncodeFrames(EncodeSession);
+        CFRelease(bitRateLimitRef);
     });
 }
 - (void)initVideoToolBox{
@@ -77,7 +82,7 @@
         OSStatus status = VTCompressionSessionCreate(NULL, width, height, kCMVideoCodecType_H264 , NULL, NULL, NULL, didCompressH264,(__bridge void *)(self), &EncodeSession);
         
         NSLog(@"H264: VTCompressionSessionCreate %d", (int)status);
-         //成功
+        //成功
         if (status != 0)
         {
             NSLog(@"H264: Unable to create a H264 session");
@@ -100,7 +105,7 @@
         [self initVideoToolBox];
         OSStatus stasusCode = VTCompressionSessionEncodeFrame(EncodeSession, imageBuffer, presenetationTimeStamp, kCMTimeInvalid, NULL, NULL, &flags);
         
-//        NSAssert(stasusCode == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:stasusCode userInfo:nil].localizedDescription);
+        //        NSAssert(stasusCode == noErr, [NSError errorWithDomain:NSOSStatusErrorDomain code:stasusCode userInfo:nil].localizedDescription);
         
         if (stasusCode != noErr) {
             NSLog(@"H264: VTCompressionSessionEncodeFrame faild  with %d", (int)stasusCode);
@@ -119,7 +124,7 @@
 void didCompressH264(void *  outputCallbackRefCon, void *  sourceFrameRefCon,OSStatus status,VTEncodeInfoFlags infoFlags, CMSampleBufferRef sampleBuffer){
     
     NSLog(@"didCompressH264 called with status %d infoFlags %d",(int)status , (int)infoFlags);
-
+    
     if (status != 0) {
         return;
     }
@@ -206,6 +211,7 @@ void didCompressH264(void *  outputCallbackRefCon, void *  sourceFrameRefCon,OSS
     VTCompressionSessionCompleteFrames(EncodeSession, kCMTimeInvalid);
     VTCompressionSessionInvalidate(EncodeSession);
     CFRelease(EncodeSession);
+    CFRelease(format);
     EncodeSession = NULL;
 }
 - (void)dealloc{

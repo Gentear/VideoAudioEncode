@@ -8,6 +8,7 @@
 
 #import "AACEncode.h"
 #import <AudioToolbox/AudioToolbox.h>
+#import "EncodeHeader.h"
 @interface AACEncode()
 /**音频转码器*/
 @property (nonatomic) AudioConverterRef audioConverter;
@@ -39,8 +40,6 @@
 }
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer{
     //这样就需要手动进行内存管理
-    CFRetain(sampleBuffer);
-    
     dispatch_async(encodeQueue, ^{
         if (!_audioConverter) {
             //配置编码参数
@@ -48,13 +47,13 @@
         }
         //获取samplebuffer数据
         CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
-        CFRetain(blockBuffer);
         
         //pcm
         OSStatus status = CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &pcmBufferSize , &pcmBuffer);
         NSError *error = nil;
         if (status != kCMBlockBufferNoErr) {
             error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+            NSLog(@"pcm error , %@",error);
             return ;
         }
         //AAC清空
@@ -89,14 +88,10 @@
                 if ([self.delegate respondsToSelector:@selector(AACCallBackData:)]) {
                     [self.delegate AACCallBackData:fullData];
                 }
-            });
-            CFRelease(sampleBuffer);
-            CFRelease(blockBuffer);
-        }else{
-            CFRelease(sampleBuffer);
-            CFRelease(blockBuffer);
-            return;
+            });   
         }
+//        CFRelease(blockBuffer);
+        CFRelease(sampleBuffer);
     });
 }
 - (void)initAudioEncoderFromSampleBuffer:(CMSampleBufferRef)smapleBuffer{

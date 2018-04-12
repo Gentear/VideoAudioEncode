@@ -1,0 +1,7 @@
+platform :ios, '8.0'
+use_frameworks!   #使用frameworks动态库替换静态库链接
+inhibit_all_warnings!   #屏蔽cocoapods库里面的所有警告
+target 'Video-iOS' do
+pod 'SocketRocket'
+pod 'CocoaAsyncSocket'
+end

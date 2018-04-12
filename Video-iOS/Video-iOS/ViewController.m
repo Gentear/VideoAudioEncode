@@ -13,7 +13,9 @@
 #import "AACDecode.h"
 #import "AAPLEAGLLayer.h"
 #import <AVFoundation/AVFoundation.h>
-
+#import "ServerViewController.h"
+#import "ClientViewController.h"
+#import "TCPSocketDefine.h"
 @interface ViewController ()<AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudioDataOutputSampleBufferDelegate,H264HWEncodeDelegate,H264HWDeEncodeDelegate,AACEncodeDelegate>
 /**session*/
 @property (nonatomic, strong) AVCaptureSession *mCaptureSession;
@@ -43,17 +45,21 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-   
-    
     // Do any additional setup after loading the view, typically from a nib.
-    UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 64)];
-    [button setTitle:@"play" forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-    [button addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:button];
+//    UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 64)];
+//    [button setTitle:@"play" forState:UIControlStateNormal];
+//    [button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+//    [button addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.view addSubview:button];
 
 }
+- (IBAction)pushServer:(id)sender {
+    [self.navigationController pushViewController:[ServerViewController new] animated:YES];
+}
+- (IBAction)pushClient:(id)sender {
+    [self.navigationController pushViewController:[ClientViewController new] animated:YES];
+}
+
 - (void)onClick:(UIButton *)btn{
     if (!self.mCaptureSession||!self.mCaptureSession.running) {
         [btn setTitle:@"stop" forState:UIControlStateNormal];
@@ -78,6 +84,9 @@
         if ([device position] == AVCaptureDevicePositionBack) {
             inputCamera = device;
         }
+    }
+    if (!inputCamera) {
+        return;
     }
     self.mCaptureDeviceInput = [[AVCaptureDeviceInput alloc]initWithDevice:inputCamera error:nil];
 

@@ -7,6 +7,7 @@
 //
 
 #import "H264HWDecode.h"
+#import "EncodeHeader.h"
 
 const uint8_t lyStartCode[4] = {0, 0, 0, 1};
 @interface H264HWDecode()
@@ -17,20 +18,20 @@ const uint8_t lyStartCode[4] = {0, 0, 0, 1};
     NSInteger mPPSSize;
     VTDecompressionSessionRef sessionRef;
     CMVideoFormatDescriptionRef formatDescriptionOut;
-    dispatch_queue_t mDecodeQueue;
 }
+/**<#desc#>*/
+@property (nonatomic, strong) NSOperationQueue *operationQueue;
 @end
 
 @implementation H264HWDecode
 - (instancetype)init{
     if (self = [super init]) {
-        mDecodeQueue = dispatch_get_global_queue(0, 0);
+        [self operationQueue];
     }
     return self;
 }
 - (void)decodeNalu:(NSData *)frameData{
-    dispatch_sync(mDecodeQueue, ^{
-        
+    [self.operationQueue addOperationWithBlock:^{
         uint8_t * frameBuffer = (uint8_t *)[frameData bytes];
         uint32_t frameSize = (uint32_t)frameData.length;
         
@@ -42,19 +43,20 @@ const uint8_t lyStartCode[4] = {0, 0, 0, 1};
         *pNalSize = CFSwapInt32HostToBig(nalSize);
         
         // 在buffer的前面填入代表长度的int
-        CVPixelBufferRef pixelBuffer = NULL;
+        //                CVPixelBufferRef pixelBuffer = NULL;
         int nalType = frameBuffer[4] & 0x1F;
         
         switch (nalType) {
             case 0x05:
                 NSLog(@"NAL type is IDR frame");
                 [self initVideoToolBox];
-                pixelBuffer = [self decodeFrame:frameBuffer frameSize:frameSize];
+                //                pixelBuffer = [self decodeFrame:frameBuffer frameSize:frameSize];
+                [self decodeFrame:frameBuffer frameSize:frameSize];
                 break;
             case 0x07:
                 NSLog(@"NAL type is SPS");
                 mSPSSize = frameSize - 4; //15
-                mSPS = malloc(mSPSSize); // "'B"
+                mSPS = malloc(mSPSSize);
                 memcpy(mSPS, frameBuffer + 4, mSPSSize);
                 break;
             case 0x08:
@@ -66,14 +68,15 @@ const uint8_t lyStartCode[4] = {0, 0, 0, 1};
             default:
                 NSLog(@"Nal type is B/P frame");
                 [self initVideoToolBox];
-                pixelBuffer = [self decodeFrame:frameBuffer frameSize:frameSize];
+                //                                pixelBuffer = [self decodeFrame:frameBuffer frameSize:frameSize];
+                [self decodeFrame:frameBuffer frameSize:frameSize];
                 break;
         }
         NSLog(@"Read Nalu size %u", frameSize);
-        
-    });
+    }];
 }
-- (CVPixelBufferRef)decodeFrame:(uint8_t *)frame  frameSize:(uint32_t)frameSize{
+//CVPixelBufferRef
+- (void)decodeFrame:(uint8_t *)frame  frameSize:(uint32_t)frameSize{
     CVPixelBufferRef  outputPixelBuffer = NULL;
     if (sessionRef) {
         CMBlockBufferRef blockBuffer = NULL;
@@ -95,7 +98,6 @@ const uint8_t lyStartCode[4] = {0, 0, 0, 1};
                 /**
                  * B/P帧可能会丢失  此处状态报错为-12911
                  */
-                
                 if (decodeStatus == kVTInvalidSessionErr) {
                     NSLog(@"IOS8VT: Invalid session, reset decoder session");
                 }else if(decodeStatus == kVTVideoDecoderBadDataErr){
@@ -110,10 +112,8 @@ const uint8_t lyStartCode[4] = {0, 0, 0, 1};
         }
         
     }
-    return outputPixelBuffer;
+//    return outputPixelBuffer;
 }
-
-
 - (void)initVideoToolBox{
     if (!sessionRef) {
         const uint8_t* parameterSetPointers[2] = {mSPS,mPPS};
@@ -179,5 +179,12 @@ void didDecompress(void *  decompressionOutputRefCon,void *  sourceFrameRefCon, 
     free(mPPS);
     mSPSSize = mPPSSize = 0;
 }
-
+#pragma mark - 懒加载
+- (NSOperationQueue *)operationQueue {
+    if (!_operationQueue) {
+        _operationQueue = [NSOperationQueue alloc].init;
+        _operationQueue.maxConcurrentOperationCount = 1;
+    }
+    return _operationQueue;
+}
 @end
